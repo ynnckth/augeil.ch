@@ -26,6 +26,10 @@ public class DownloadCode {
     private String albumId;
 
     public void decrementAvailableDownloads() {
-        availableDownloads--;
+        if (availableDownloads > 0) {
+            availableDownloads--;
+            return;
+        }
+        throw new RuntimeException("There are no more downloads available for this download code");
     }
 }

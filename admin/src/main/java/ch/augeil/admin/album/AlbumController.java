@@ -80,7 +80,9 @@ public class AlbumController {
         log.info("Requested to redeem download code {}", downloadCode);
         return downloadCodeRepository.findById(downloadCode)
                 .map(foundDownloadCode -> {
+                    log.info("Decrementing available downloads for code {}", downloadCode);
                     foundDownloadCode.decrementAvailableDownloads();
+                    log.info("Saving decremented download code {}", downloadCode);
                     downloadCodeRepository.save(foundDownloadCode);
 
                     Album matchingAlbum = albumRepository
