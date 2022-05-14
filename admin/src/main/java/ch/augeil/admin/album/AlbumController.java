@@ -5,9 +5,12 @@ import ch.augeil.admin.album.downloadcodes.DownloadCodeGenerator;
 import ch.augeil.admin.album.downloadcodes.DownloadCodeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 // TODO: protect all endpoints behind a basic auth except for the download code redemption endpoint
@@ -16,11 +19,14 @@ import java.util.List;
 public class AlbumController {
 
     private final Logger log = LoggerFactory.getLogger(AlbumController.class);
-    private final DownloadCodeGenerator downloadCodeGenerator;
+
+    private final AlbumStorageService albumUploadService;
     private final AlbumRepository albumRepository;
     private final DownloadCodeRepository downloadCodeRepository;
+    private final DownloadCodeGenerator downloadCodeGenerator;
 
-    public AlbumController(DownloadCodeGenerator downloadCodeGenerator, AlbumRepository albumRepository, DownloadCodeRepository downloadCodeRepository) {
+    public AlbumController(AlbumStorageService albumStorageService, DownloadCodeGenerator downloadCodeGenerator, AlbumRepository albumRepository, DownloadCodeRepository downloadCodeRepository) {
+        this.albumUploadService = albumStorageService;
         this.downloadCodeGenerator = downloadCodeGenerator;
         this.albumRepository = albumRepository;
         this.downloadCodeRepository = downloadCodeRepository;
@@ -49,19 +55,18 @@ public class AlbumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping(/*consumes = MediaType.MULTIPART_MIXED_VALUE*/)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Album> createAndUploadAlbum(
-            // @RequestPart("albumZipFile") MultipartFile albumZipFile,
+            @RequestPart("albumZipFile") MultipartFile albumZipFile,
             @RequestParam("artist") String artist,
-            @RequestParam("albumName") String albumName) {
+            @RequestParam("albumName") String albumName) throws IOException {
         Album album = new Album();
         album.setArtist(artist);
         album.setAlbumName(albumName);
-        // TODO: upload the provided album zip file to a file server (e.g. Azure blob storage or S3)
-        //  and set the url to the download location
-        //  https://docs.microsoft.com/en-us/azure/developer/java/spring-framework/configure-spring-boot-starter-java-app-with-azure-storage
-        album.setFilePath("azure.com/myAlbum");
+        album.setFileName(albumZipFile.getOriginalFilename());
+        albumUploadService.uploadAlbum(albumZipFile);
         Album savedAlbum = albumRepository.save(album);
+        log.info("Saved new album {}", savedAlbum.getId());
         return ResponseEntity.ok(savedAlbum);
     }
 
@@ -87,7 +92,7 @@ public class AlbumController {
 
                     Album matchingAlbum = albumRepository
                             .findById(foundDownloadCode.getAlbumId())
-                            .orElseThrow(() -> new IllegalStateException(String.format("Album %s not found for download code %s", foundDownloadCode.getAlbumId(), downloadCode)));
+                            .orElseThrow(() -> new RuntimeException(String.format("Album %s not found for download code %s", foundDownloadCode.getAlbumId(), downloadCode)));
 
                     // TODO: download zip file from: matchingAlbum.getFilePath() and return it
                     return ResponseEntity.ok().build();

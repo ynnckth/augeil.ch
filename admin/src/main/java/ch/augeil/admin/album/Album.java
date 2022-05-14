@@ -21,7 +21,7 @@ public class Album {
 
     private String artist;
     private String albumName;
-    private String filePath;
+    private String fileName;
     @OneToMany
     private List<DownloadCode> downloadCodes;
 }
