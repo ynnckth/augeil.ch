@@ -2,10 +2,12 @@ package ch.augeil.admin.configuration;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@Getter
 @Configuration
 public class AzureBlobStorageConfiguration {
 
@@ -17,6 +19,9 @@ public class AzureBlobStorageConfiguration {
 
     @Value("${spring.cloud.azure.storage.blob.container-name}")
     private String storageContainerName;
+
+    @Value("${tempFileDownloadPath}")
+    private String tempFileDownloadPath;
 
     @Bean
     public BlobContainerClient getBlobContainerClient() {

@@ -5,6 +5,7 @@ import ch.augeil.admin.album.downloadcodes.DownloadCodeGenerator;
 import ch.augeil.admin.album.downloadcodes.DownloadCodeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,9 +80,8 @@ public class AlbumController {
         return ResponseEntity.ok(savedDownloadCodes);
     }
 
-    // TODO: return the album zip file in response (not the path to the download location!)
     @GetMapping("/{downloadCode}/redeem")
-    public ResponseEntity<Object> redeemDownloadCode(@PathVariable String downloadCode) {
+    public ResponseEntity<ByteArrayResource> redeemDownloadCode(@PathVariable String downloadCode) {
         log.info("Requested to redeem download code {}", downloadCode);
         return downloadCodeRepository.findById(downloadCode)
                 .map(foundDownloadCode -> {
@@ -89,13 +89,17 @@ public class AlbumController {
                     foundDownloadCode.decrementAvailableDownloads();
                     log.info("Saving decremented download code {}", downloadCode);
                     downloadCodeRepository.save(foundDownloadCode);
+                    log.info("Saved updated download code {}", downloadCode);
 
                     Album matchingAlbum = albumRepository
                             .findById(foundDownloadCode.getAlbumId())
                             .orElseThrow(() -> new RuntimeException(String.format("Album %s not found for download code %s", foundDownloadCode.getAlbumId(), downloadCode)));
 
-                    // TODO: download zip file from: matchingAlbum.getFilePath() and return it
-                    return ResponseEntity.ok().build();
+                    ByteArrayResource downloadedAlbumFile = albumUploadService.downloadAlbum(matchingAlbum.getFileName());
+                    return ResponseEntity
+                            .ok()
+                            .contentLength(downloadedAlbumFile.contentLength())
+                            .body(downloadedAlbumFile);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
