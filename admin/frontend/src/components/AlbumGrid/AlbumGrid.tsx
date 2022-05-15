@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Album } from "../../model/Album";
 import { AgGridReact } from "ag-grid-react";
-
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-alpine-dark.css";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Button } from "@mui/material";
 import UploadAlbumDialog from "../UploadAlbumDialog/UploadAlbumDialog";
 import { uploadAlbum } from "../../api/AlbumApi";
 import { useSnackbar } from "notistack";
+import LoadingScreen from "../LoadingScreen/LoadingScreen";
+import "ag-grid-community/dist/styles/ag-grid.css";
+import "ag-grid-community/dist/styles/ag-theme-alpine-dark.css";
 
 interface Props {
   albums: Album[];
@@ -19,6 +19,7 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [isAddAlbumModalOpen, setIsAddAlbumModalOpen] =
     useState<boolean>(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(false);
   const [columnDefs, setColumnDefs] = useState([
     { field: "id", filter: true },
     { field: "artist", filter: true },
@@ -31,13 +32,15 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
     albumZipFile: File
   ) => {
     setIsAddAlbumModalOpen(false);
-    // TODO: show loading screen
+    setShowLoadingScreen(true);
     try {
       await uploadAlbum(artist, album, albumZipFile);
       enqueueSnackbar("Successfully uploaded album", { variant: "success" });
       await onFetchAlbums();
+      setShowLoadingScreen(false);
     } catch (e) {
       enqueueSnackbar("Successfully uploaded album", { variant: "error" });
+      setShowLoadingScreen(false);
     }
   };
 
@@ -64,6 +67,7 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
           onUploadAlbum(artist, album, albumZipFile)
         }
       />
+      {showLoadingScreen && <LoadingScreen />}
     </div>
   );
 };

@@ -5,17 +5,22 @@ import AlbumGrid from "./components/AlbumGrid/AlbumGrid";
 import { Box } from "@mui/material";
 import Header from "./components/Header/Header";
 import { useSnackbar } from "notistack";
+import LoadingScreen from "./components/LoadingScreen/LoadingScreen";
 
 const App = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(false);
 
   const fetchAllAlbums = async () => {
+    setShowLoadingScreen(true);
     try {
       const albums = await fetchAlbums();
       setAlbums(albums);
+      setShowLoadingScreen(false);
     } catch (e) {
       enqueueSnackbar("Error fetching albums", { variant: "error" });
+      setShowLoadingScreen(false);
     }
   };
 
@@ -46,6 +51,7 @@ const App = () => {
         <Box />
         <AlbumGrid albums={albums} onFetchAlbums={() => fetchAllAlbums()} />
       </Box>
+      {showLoadingScreen && <LoadingScreen />}
     </Box>
   );
 };
