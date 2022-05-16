@@ -61,7 +61,6 @@ const GenerateDownloadCodesDialog: React.FC<Props> = ({
           label="Number of download codes"
           type="number"
           sx={{ width: "100%" }}
-          defaultValue={200}
           onChange={(e) => setSelectedDownloadCodes(Number(e.target.value))}
         />
       </DialogContent>

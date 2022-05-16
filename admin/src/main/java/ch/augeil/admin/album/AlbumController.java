@@ -105,9 +105,12 @@ public class AlbumController {
                             .orElseThrow(() -> new RuntimeException(String.format("Album %s not found for download code %s", foundDownloadCode.getAlbumId(), downloadCode)));
 
                     ByteArrayResource downloadedAlbumFile = albumUploadService.downloadAlbum(matchingAlbum.getFileName());
+                    // TODO: clear all temporary downloaded album files
+                    // TODO: set original file name in response (currently always redeem.zip)
                     return ResponseEntity
                             .ok()
                             .contentLength(downloadedAlbumFile.contentLength())
+                            .contentType(MediaType.valueOf("application/zip"))
                             .body(downloadedAlbumFile);
                 })
                 .orElse(ResponseEntity.notFound().build());

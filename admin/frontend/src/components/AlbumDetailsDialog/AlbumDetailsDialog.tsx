@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Album } from "../../model/Album";
-import AlbumDetailsGrid from "../AlbumDetailsTable/AlbumDetailsGrid";
+import AlbumDetailsGrid from "../AlbumDetailsGrid/AlbumDetailsGrid";
 
 interface Props {
   isOpen: boolean;

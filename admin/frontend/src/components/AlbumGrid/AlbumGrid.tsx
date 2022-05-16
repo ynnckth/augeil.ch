@@ -40,6 +40,7 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
   const defaultColDef = useMemo(() => ({ sortable: true }), []);
 
   const cellClickedListener = useCallback((event: CellClickedEvent) => {
+    // TODO: re-fetch selected album to have the latest details (download codes)
     setSelectedAlbum(event.data);
   }, []);
 

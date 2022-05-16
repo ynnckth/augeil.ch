@@ -18,7 +18,11 @@ const AlbumDetailsGrid: React.FC<Props> = ({ album }) => {
       className="ag-theme-alpine-dark"
       style={{ width: "450px", height: "300px" }}
     >
-      <AgGridReact rowData={album.downloadCodes} columnDefs={columnDefs} />
+      <AgGridReact
+        rowData={album.downloadCodes}
+        columnDefs={columnDefs}
+        enableCellTextSelection={true}
+      />
     </div>
   );
 };
