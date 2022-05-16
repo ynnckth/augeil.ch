@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
-// TODO: protect all endpoints behind a basic auth except for the download code redemption endpoint
 @RestController
 @RequestMapping("/albums")
 public class AlbumController {
@@ -90,6 +89,7 @@ public class AlbumController {
         return ResponseEntity.ok(savedDownloadCodes);
     }
 
+    // TODO: this endpoint should be publicly accessible (exclude from basic auth)
     @GetMapping("/{downloadCode}/redeem")
     public ResponseEntity<ByteArrayResource> redeemDownloadCode(@PathVariable String downloadCode) {
         log.info("Requested to redeem download code {}", downloadCode);
