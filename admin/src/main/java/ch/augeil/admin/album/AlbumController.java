@@ -89,7 +89,6 @@ public class AlbumController {
         return ResponseEntity.ok(savedDownloadCodes);
     }
 
-    // TODO: this endpoint should be publicly accessible (exclude from basic auth)
     @GetMapping("/{downloadCode}/redeem")
     public ResponseEntity<ByteArrayResource> redeemDownloadCode(@PathVariable String downloadCode) {
         log.info("Requested to redeem download code {}", downloadCode);
