@@ -21,3 +21,19 @@ export const uploadAlbum = async (
   });
   return await response.json();
 };
+
+export const generateDownloadCodes = async (
+  albumId: string,
+  numberOfDownloadCodes: number
+) => {
+  const queryParams = new URLSearchParams({
+    numberOfDownloadCodesToGenerate: "" + numberOfDownloadCodes,
+  });
+  const response = await fetch(
+    `/albums/${albumId}/downloadcodes?${queryParams}`,
+    {
+      method: "POST",
+    }
+  );
+  return response.json();
+};

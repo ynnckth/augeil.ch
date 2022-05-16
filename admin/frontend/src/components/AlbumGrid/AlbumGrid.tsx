@@ -6,22 +6,29 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Box, Button } from "@mui/material";
 import UploadAlbumDialog from "../UploadAlbumDialog/UploadAlbumDialog";
 import AlbumDetailsDialog from "../AlbumDetailsDialog/AlbumDetailsDialog";
-import { uploadAlbum } from "../../api/AlbumApi";
+import { generateDownloadCodes, uploadAlbum } from "../../api/AlbumApi";
 import { useSnackbar } from "notistack";
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine-dark.css";
 import { CellClickedEvent } from "ag-grid-community/dist/lib/events";
+import GenerateDownloadCodesDialog from "../GenerateDownloadCodesDialog/GenerateDownloadCodesDialog";
 
 interface Props {
   albums: Album[];
   onFetchAlbums: () => Promise<void>;
 }
 
+// TODO: resizable columns
 const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [isAddAlbumDialogOpen, setIsAddAlbumDialogOpen] =
     useState<boolean>(false);
+  const [
+    isGenerateDownloadCodesDialogOpen,
+    setIsGenerateDownloadCodesDialogOpen,
+  ] = useState<boolean>(false);
+
   const [selectedAlbum, setSelectedAlbum] = useState<Album>();
   const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(false);
   const [columnDefs, setColumnDefs] = useState([
@@ -48,7 +55,28 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
       await onFetchAlbums();
       setShowLoadingScreen(false);
     } catch (e) {
-      enqueueSnackbar("Successfully uploaded album", { variant: "error" });
+      enqueueSnackbar("Failed to uploaded album", { variant: "error" });
+      setShowLoadingScreen(false);
+    }
+  };
+
+  const onGenerateDownloadCodes = async (
+    albumId: string,
+    numberOfDownloadCodes: number
+  ) => {
+    setIsGenerateDownloadCodesDialogOpen(false);
+    setShowLoadingScreen(true);
+    try {
+      await generateDownloadCodes(albumId, numberOfDownloadCodes);
+      enqueueSnackbar("Successfully generated download codes", {
+        variant: "success",
+      });
+      await onFetchAlbums();
+      setShowLoadingScreen(false);
+    } catch (e) {
+      enqueueSnackbar("Failed to generate download codes", {
+        variant: "error",
+      });
       setShowLoadingScreen(false);
     }
   };
@@ -65,8 +93,10 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
         >
           Upload album
         </Button>
-        {/* TODO: add a dialog for download code generation */}
-        <Button onClick={() => {}} startIcon={<AddCircleIcon />}>
+        <Button
+          onClick={() => setIsGenerateDownloadCodesDialogOpen(true)}
+          startIcon={<AddCircleIcon />}
+        >
           Generate download codes
         </Button>
       </Box>
@@ -79,14 +109,18 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
       <UploadAlbumDialog
         isOpen={isAddAlbumDialogOpen}
         onCancel={() => setIsAddAlbumDialogOpen(false)}
-        onUpload={(artist, album, albumZipFile) =>
-          onUploadAlbum(artist, album, albumZipFile)
-        }
+        onUpload={onUploadAlbum}
       />
       <AlbumDetailsDialog
         isOpen={!!selectedAlbum}
         onCancel={() => setSelectedAlbum(undefined)}
         selectedAlbum={selectedAlbum}
+      />
+      <GenerateDownloadCodesDialog
+        isOpen={isGenerateDownloadCodesDialogOpen}
+        albums={albums}
+        onCancel={() => setIsGenerateDownloadCodesDialogOpen(false)}
+        onGenerate={onGenerateDownloadCodes}
       />
       {showLoadingScreen && <LoadingScreen />}
     </div>

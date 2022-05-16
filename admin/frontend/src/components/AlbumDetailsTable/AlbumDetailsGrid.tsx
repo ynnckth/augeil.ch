@@ -6,6 +6,7 @@ interface Props {
   album: Album;
 }
 
+// TODO: resizable columns
 const AlbumDetailsGrid: React.FC<Props> = ({ album }) => {
   const [columnDefs, setColumnDefs] = useState([
     { field: "id", filter: true },
