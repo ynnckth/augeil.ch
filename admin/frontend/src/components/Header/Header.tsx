@@ -1,8 +1,7 @@
 import React from "react";
-import {AppBar, Box, Typography} from "@mui/material";
+import { AppBar, Box, Typography } from "@mui/material";
 import logo from "../../assets/logo-white-header.svg";
 
-// TODO: fix positioning issue with page height
 const Header = () => {
   return (
     <AppBar color="primary" position="fixed">

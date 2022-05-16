@@ -20,6 +20,8 @@ import java.util.List;
 public class AlbumController {
 
     private final Logger log = LoggerFactory.getLogger(AlbumController.class);
+    private static final String ZIP_CONTENT_TYPE = "application/zip";
+    private static final long MAX_FILE_SIZE_IN_BYTES = 52428800L * 2; // 100MB
 
     private final AlbumStorageService albumUploadService;
     private final AlbumRepository albumRepository;
@@ -56,12 +58,19 @@ public class AlbumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // TODO: validate file ending (.zip) and file size limitation
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Album> createAndUploadAlbum(
             @RequestPart("albumZipFile") MultipartFile albumZipFile,
             @RequestParam("artist") String artist,
             @RequestParam("albumName") String albumName) throws IOException {
+        if (!ZIP_CONTENT_TYPE.equals(albumZipFile.getContentType())) {
+            log.warn("Attempted to upload non-zip file");
+            return ResponseEntity.badRequest().build();
+        }
+        if (albumZipFile.getSize() > MAX_FILE_SIZE_IN_BYTES) {
+            log.warn("Attempted to upload too large file {}", albumZipFile.getSize());
+            return ResponseEntity.badRequest().build();
+        }
         Album album = new Album();
         album.setArtist(artist);
         album.setAlbumName(albumName);

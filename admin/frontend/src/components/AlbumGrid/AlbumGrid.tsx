@@ -32,10 +32,11 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
   const [selectedAlbum, setSelectedAlbum] = useState<Album>();
   const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(false);
   const [columnDefs, setColumnDefs] = useState([
-    { field: "id", filter: true },
-    { field: "artist", filter: true },
-    { field: "albumName", filter: true },
+    { field: "id", filter: true, resizable: true },
+    { field: "artist", filter: true, resizable: true },
+    { field: "albumName", filter: true, resizable: true },
   ]);
+
   const defaultColDef = useMemo(() => ({ sortable: true }), []);
 
   const cellClickedListener = useCallback((event: CellClickedEvent) => {
