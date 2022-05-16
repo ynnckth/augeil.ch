@@ -84,7 +84,12 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
   return (
     <div
       className="ag-theme-alpine-dark"
-      style={{ width: "95%", height: 600, padding: "10px" }}
+      style={{
+        width: "95%",
+        height: 600,
+        padding: "10px",
+        marginBottom: "40px",
+      }}
     >
       <Box>
         <Button

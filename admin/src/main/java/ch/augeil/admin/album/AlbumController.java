@@ -56,6 +56,7 @@ public class AlbumController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // TODO: validate file ending (.zip) and file size limitation
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Album> createAndUploadAlbum(
             @RequestPart("albumZipFile") MultipartFile albumZipFile,
