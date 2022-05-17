@@ -12,7 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 
 @RestController
 @RequestMapping("/albums")
@@ -22,13 +27,13 @@ public class AlbumController {
     private static final String ZIP_CONTENT_TYPE = "application/zip";
     private static final long MAX_FILE_SIZE_IN_BYTES = 52428800L * 2; // 100MB
 
-    private final AlbumStorageService albumUploadService;
+    private final AlbumStorageService albumStorageService;
     private final AlbumRepository albumRepository;
     private final DownloadCodeRepository downloadCodeRepository;
     private final DownloadCodeGenerator downloadCodeGenerator;
 
     public AlbumController(AlbumStorageService albumStorageService, DownloadCodeGenerator downloadCodeGenerator, AlbumRepository albumRepository, DownloadCodeRepository downloadCodeRepository) {
-        this.albumUploadService = albumStorageService;
+        this.albumStorageService = albumStorageService;
         this.downloadCodeGenerator = downloadCodeGenerator;
         this.albumRepository = albumRepository;
         this.downloadCodeRepository = downloadCodeRepository;
@@ -74,7 +79,7 @@ public class AlbumController {
         album.setArtist(artist);
         album.setAlbumName(albumName);
         album.setFileName(albumZipFile.getOriginalFilename());
-        albumUploadService.uploadAlbum(albumZipFile);
+        albumStorageService.uploadAlbum(albumZipFile);
         Album savedAlbum = albumRepository.save(album);
         log.info("Saved new album {}", savedAlbum.getId());
         return ResponseEntity.ok(savedAlbum);
@@ -104,15 +109,26 @@ public class AlbumController {
                             .findById(foundDownloadCode.getAlbumId())
                             .orElseThrow(() -> new RuntimeException(String.format("Album %s not found for download code %s", foundDownloadCode.getAlbumId(), downloadCode)));
 
-                    ByteArrayResource downloadedAlbumFile = albumUploadService.downloadAlbum(matchingAlbum.getFileName());
-                    // TODO: clear all temporary downloaded album files
-                    // TODO: set original file name in response (currently always redeem.zip)
+                    ByteArrayResource downloadedAlbumFile = albumStorageService.downloadAlbum(matchingAlbum.getFileName());
+                    deleteTemporaryAlbumFile(matchingAlbum.getFileName());
                     return ResponseEntity
                             .ok()
+                            .header(CONTENT_DISPOSITION,"attachment;filename=\"" + matchingAlbum.getFileName())
                             .contentLength(downloadedAlbumFile.contentLength())
-                            .contentType(MediaType.valueOf("application/zip"))
+                            .contentType(MediaType.valueOf(ZIP_CONTENT_TYPE))
                             .body(downloadedAlbumFile);
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    private void deleteTemporaryAlbumFile(String albumFileName) {
+        Path temporaryAlbumFile = Paths.get(albumStorageService.getLocalFileStorageLocation().toString(), albumFileName);
+        try {
+            log.info("Deleting temporary album file {} ...", temporaryAlbumFile);
+            Files.delete(temporaryAlbumFile);
+            log.info("Deleted temporary album file {}", temporaryAlbumFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete " + temporaryAlbumFile);
+        }
     }
 }

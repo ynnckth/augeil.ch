@@ -51,4 +51,8 @@ public class AlbumStorageService {
             throw new RuntimeException(e);
         }
     }
+
+    public Path getLocalFileStorageLocation() {
+        return localFileStorageLocation;
+    }
 }
