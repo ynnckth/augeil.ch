@@ -6,7 +6,11 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Box, Button } from "@mui/material";
 import UploadAlbumDialog from "../UploadAlbumDialog/UploadAlbumDialog";
 import AlbumDetailsDialog from "../AlbumDetailsDialog/AlbumDetailsDialog";
-import { generateDownloadCodes, uploadAlbum } from "../../api/AlbumApi";
+import {
+  fetchAlbum,
+  generateDownloadCodes,
+  uploadAlbum,
+} from "../../api/AlbumApi";
 import { useSnackbar } from "notistack";
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
 import "ag-grid-community/dist/styles/ag-grid.css";
@@ -40,8 +44,11 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
   const defaultColDef = useMemo(() => ({ sortable: true }), []);
 
   const cellClickedListener = useCallback((event: CellClickedEvent) => {
-    // TODO: re-fetch selected album to have the latest details (download codes)
-    setSelectedAlbum(event.data);
+    fetchAlbum(event.data.id)
+      .then((albumDetails) => setSelectedAlbum(albumDetails))
+      .catch((e) => {
+        enqueueSnackbar("Failed to fetch album details", { variant: "error" });
+      });
   }, []);
 
   const onUploadAlbum = async (

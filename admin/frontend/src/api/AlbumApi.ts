@@ -5,6 +5,11 @@ export const fetchAlbums = async (): Promise<Album[]> => {
   return await response.json();
 };
 
+export const fetchAlbum = async (albumId: string): Promise<Album> => {
+  const response = await fetch(`/albums/${albumId}`);
+  return await response.json();
+};
+
 export const uploadAlbum = async (
   artist: string,
   album: string,

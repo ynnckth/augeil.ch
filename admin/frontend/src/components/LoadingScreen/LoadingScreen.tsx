@@ -1,9 +1,11 @@
 import React from "react";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
-interface Props {}
+interface Props {
+  loadingText?: string;
+}
 
-const LoadingScreen: React.FC<Props> = () => {
+const LoadingScreen: React.FC<Props> = ({ loadingText }) => {
   return (
     <Box
       sx={{
@@ -20,6 +22,7 @@ const LoadingScreen: React.FC<Props> = () => {
       }}
     >
       <CircularProgress />
+      {loadingText && <Typography>{loadingText}</Typography>}
     </Box>
   );
 };
