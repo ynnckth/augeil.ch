@@ -100,18 +100,24 @@ public class AlbumController {
         log.info("Requested to redeem download code {}", downloadCode);
         return downloadCodeRepository.findById(downloadCode)
                 .map(foundDownloadCode -> {
+                    Album matchingAlbum = albumRepository
+                            .findById(foundDownloadCode.getAlbumId())
+                            .orElseThrow(() -> new RuntimeException(String.format("Album %s not found for download code %s", foundDownloadCode.getAlbumId(), downloadCode)));
+
+                    ByteArrayResource downloadedAlbumFile = null;
+                    try {
+                        downloadedAlbumFile = albumStorageService.downloadAlbum(matchingAlbum.getFileName());
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to download album", e);
+                    }
+                    deleteTemporaryAlbumFile(matchingAlbum.getFileName());
+
                     log.info("Decrementing available downloads for code {}", downloadCode);
                     foundDownloadCode.decrementAvailableDownloads();
                     log.info("Saving decremented download code {}", downloadCode);
                     downloadCodeRepository.save(foundDownloadCode);
                     log.info("Saved updated download code {}", downloadCode);
 
-                    Album matchingAlbum = albumRepository
-                            .findById(foundDownloadCode.getAlbumId())
-                            .orElseThrow(() -> new RuntimeException(String.format("Album %s not found for download code %s", foundDownloadCode.getAlbumId(), downloadCode)));
-
-                    ByteArrayResource downloadedAlbumFile = albumStorageService.downloadAlbum(matchingAlbum.getFileName());
-                    deleteTemporaryAlbumFile(matchingAlbum.getFileName());
                     return ResponseEntity
                             .ok()
                             .header(CONTENT_DISPOSITION,"attachment;filename=\"" + matchingAlbum.getFileName())
