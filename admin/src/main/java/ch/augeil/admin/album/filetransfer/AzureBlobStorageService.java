@@ -1,4 +1,4 @@
-package ch.augeil.admin.album;
+package ch.augeil.admin.album.filetransfer;
 
 import ch.augeil.admin.configuration.AzureBlobStorageConfiguration;
 import com.azure.storage.blob.BlobClient;
@@ -16,18 +16,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
-public class AlbumStorageService {
+public class AzureBlobStorageService implements AlbumStorageService {
 
-    private final Logger log = LoggerFactory.getLogger(AlbumStorageService.class);
+    private final Logger log = LoggerFactory.getLogger(AzureBlobStorageService.class);
 
     private final BlobContainerClient blobContainerClient;
     private final Path localFileStorageLocation;
 
-    public AlbumStorageService(AzureBlobStorageConfiguration blobStorageConfiguration, BlobContainerClient blobContainerClient) {
+    public AzureBlobStorageService(AzureBlobStorageConfiguration blobStorageConfiguration, BlobContainerClient blobContainerClient) {
         this.blobContainerClient = blobContainerClient;
         this.localFileStorageLocation = Path.of(blobStorageConfiguration.getTempFileDownloadPath());
     }
 
+    @Override
     public void uploadAlbum(MultipartFile albumZipFile) throws IOException {
         String albumFileName = albumZipFile.getOriginalFilename();
         log.info("Uploading album file {} to azure blob storage", albumFileName);
@@ -36,6 +37,7 @@ public class AlbumStorageService {
         log.info("Successfully uploaded album file {} to azure blob storage", albumFileName);
     }
 
+    @Override
     public ByteArrayResource downloadAlbum(String albumFileName) {
         log.info("Downloading album file {} from azure blob storage", albumFileName);
         BlobClient blobClient = blobContainerClient.getBlobClient(albumFileName);
@@ -52,6 +54,7 @@ public class AlbumStorageService {
         }
     }
 
+    @Override
     public Path getLocalFileStorageLocation() {
         return localFileStorageLocation;
     }

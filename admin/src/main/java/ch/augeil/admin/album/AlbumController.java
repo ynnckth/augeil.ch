@@ -3,6 +3,7 @@ package ch.augeil.admin.album;
 import ch.augeil.admin.album.downloadcodes.DownloadCode;
 import ch.augeil.admin.album.downloadcodes.DownloadCodeGenerator;
 import ch.augeil.admin.album.downloadcodes.DownloadCodeRepository;
+import ch.augeil.admin.album.filetransfer.SftpStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,12 +28,12 @@ public class AlbumController {
     private static final String ZIP_CONTENT_TYPE = "application/zip";
     private static final long MAX_FILE_SIZE_IN_BYTES = 52428800L * 2; // 100MB
 
-    private final AlbumStorageService albumStorageService;
+    private final SftpStorageService albumStorageService;
     private final AlbumRepository albumRepository;
     private final DownloadCodeRepository downloadCodeRepository;
     private final DownloadCodeGenerator downloadCodeGenerator;
 
-    public AlbumController(AlbumStorageService albumStorageService, DownloadCodeGenerator downloadCodeGenerator, AlbumRepository albumRepository, DownloadCodeRepository downloadCodeRepository) {
+    public AlbumController(SftpStorageService albumStorageService, DownloadCodeGenerator downloadCodeGenerator, AlbumRepository albumRepository, DownloadCodeRepository downloadCodeRepository) {
         this.albumStorageService = albumStorageService;
         this.downloadCodeGenerator = downloadCodeGenerator;
         this.albumRepository = albumRepository;
