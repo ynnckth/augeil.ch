@@ -6,6 +6,7 @@ import ch.augeil.admin.album.downloadcodes.DownloadCodeRepository;
 import ch.augeil.admin.album.filetransfer.SftpStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ public class AlbumController {
     private final AlbumRepository albumRepository;
     private final DownloadCodeRepository downloadCodeRepository;
     private final DownloadCodeGenerator downloadCodeGenerator;
+
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
 
     public AlbumController(SftpStorageService albumStorageService, DownloadCodeGenerator downloadCodeGenerator, AlbumRepository albumRepository, DownloadCodeRepository downloadCodeRepository) {
         this.albumStorageService = albumStorageService;
@@ -80,7 +84,9 @@ public class AlbumController {
         album.setArtist(artist);
         album.setAlbumName(albumName);
         album.setFileName(albumZipFile.getOriginalFilename());
-        albumStorageService.uploadAlbum(albumZipFile);
+        if (!activeProfile.equals("local")) {
+            albumStorageService.uploadAlbum(albumZipFile);
+        }
         Album savedAlbum = albumRepository.save(album);
         log.info("Saved new album {}", savedAlbum.getId());
         return ResponseEntity.ok(savedAlbum);
