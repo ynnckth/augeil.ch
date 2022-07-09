@@ -9,27 +9,29 @@ Define and set the following environment variables:
 SPRING_SECURITY_USERNAME=...
 SPRING_SECURITY_PASSWORD=...
 
-# Azure blob storage
-AZURE_BLOB_STORAGE_ACCOUNT_NAME=...
-AZURE_BLOB_STORAGE_ACCOUNT_KEY=...
-AZURE_BLOB_STORAGE_CONTAINER_NAME=...
+DATABASE_USER=<your album database username>
+DATABASE_PASSWORD=<your album database password>
+SFTP_USER=<your sftp server username>
+SFTP_PASSWORD=<your sftp server password>
 
 # Spring active profile (local or prod)
 spring.profiles.active=...
 ```
 
+## Local development
+First, run the Spring Boot backend application. After that follow the steps below to run the frontend:
+```bash
+# Download dependencies of frontend
+cd frontend
+npm install
+
+# Run react application in development mode :
+npm start
+```
+
 ## Build and run with docker
-```
-$ docker build -t augeil .
-$ docker run -p 8080:8080 --env-file env augeil
-```
-
-## Deploy to Azure
-```
-$ az login
-
-# Build docker image and upload to Azure Container Registry:
-$ az acr build --file Dockerfile --registry augeilcontainerregistry --image augeil .
-
-
+```bash
+docker build -t augeil .
+# Assumes there is a file called "env" on the root project directory containing the defined environment variables
+docker run -p 8080:8080 --env-file env augeil
 ```
