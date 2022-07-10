@@ -30,7 +30,6 @@ const columnDefinitions: ColDef[] = [
   { field: "albumName", filter: true, resizable: true },
 ];
 
-// TODO: resizable columns
 const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [isAddAlbumDialogOpen, setIsAddAlbumDialogOpen] =
