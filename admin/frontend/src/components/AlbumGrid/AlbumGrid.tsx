@@ -17,11 +17,18 @@ import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine-dark.css";
 import { CellClickedEvent } from "ag-grid-community/dist/lib/events";
 import GenerateDownloadCodesDialog from "../GenerateDownloadCodesDialog/GenerateDownloadCodesDialog";
+import { ColDef } from "ag-grid-community/dist/lib/entities/colDef";
 
 interface Props {
   albums: Album[];
   onFetchAlbums: () => Promise<void>;
 }
+
+const columnDefinitions: ColDef[] = [
+  { field: "id", filter: true, resizable: true, initialWidth: 300 },
+  { field: "artist", filter: true, resizable: true },
+  { field: "albumName", filter: true, resizable: true },
+];
 
 // TODO: resizable columns
 const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
@@ -35,19 +42,19 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
 
   const [selectedAlbum, setSelectedAlbum] = useState<Album>();
   const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(false);
-  const [columnDefs, setColumnDefs] = useState([
-    { field: "id", filter: true, resizable: true },
-    { field: "artist", filter: true, resizable: true },
-    { field: "albumName", filter: true, resizable: true },
-  ]);
 
   const defaultColDef = useMemo(() => ({ sortable: true }), []);
 
   const cellClickedListener = useCallback((event: CellClickedEvent) => {
+    setShowLoadingScreen(true);
     fetchAlbum(event.data.id)
-      .then((albumDetails) => setSelectedAlbum(albumDetails))
+      .then((albumDetails) => {
+        setSelectedAlbum(albumDetails);
+        setShowLoadingScreen(false);
+      })
       .catch((e) => {
         enqueueSnackbar("Failed to fetch album details", { variant: "error" });
+        setShowLoadingScreen(false);
       });
   }, []);
 
@@ -116,7 +123,7 @@ const AlbumGrid: React.FC<Props> = ({ albums, onFetchAlbums }) => {
       </Box>
       <AgGridReact
         rowData={albums}
-        columnDefs={columnDefs}
+        columnDefs={columnDefinitions}
         defaultColDef={defaultColDef}
         onCellClicked={cellClickedListener}
       />

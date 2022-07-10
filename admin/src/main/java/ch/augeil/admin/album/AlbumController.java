@@ -84,9 +84,7 @@ public class AlbumController {
         album.setArtist(artist);
         album.setAlbumName(albumName);
         album.setFileName(albumZipFile.getOriginalFilename());
-        if (!activeProfile.equals("local")) {
-            albumStorageService.uploadAlbum(albumZipFile);
-        }
+        albumStorageService.uploadAlbum(albumZipFile);
         Album savedAlbum = albumRepository.save(album);
         log.info("Saved new album {}", savedAlbum.getId());
         return ResponseEntity.ok(savedAlbum);
@@ -126,7 +124,7 @@ public class AlbumController {
 
                     return ResponseEntity
                             .ok()
-                            .header(CONTENT_DISPOSITION,"attachment;filename=\"" + matchingAlbum.getFileName())
+                            .header(CONTENT_DISPOSITION, "attachment;filename=\"" + matchingAlbum.getFileName())
                             .contentLength(downloadedAlbumFile.contentLength())
                             .contentType(MediaType.valueOf(ZIP_CONTENT_TYPE))
                             .body(downloadedAlbumFile);
