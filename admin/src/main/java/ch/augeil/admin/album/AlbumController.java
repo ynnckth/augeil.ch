@@ -3,7 +3,7 @@ package ch.augeil.admin.album;
 import ch.augeil.admin.album.downloadcodes.DownloadCode;
 import ch.augeil.admin.album.downloadcodes.DownloadCodeGenerator;
 import ch.augeil.admin.album.downloadcodes.DownloadCodeRepository;
-import ch.augeil.admin.album.filetransfer.SftpStorageService;
+import ch.augeil.admin.album.filetransfer.FtpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +29,7 @@ public class AlbumController {
     private static final String ZIP_CONTENT_TYPE = "application/zip";
     private static final long MAX_FILE_SIZE_IN_BYTES = 52428800L * 2; // 100MB
 
-    private final SftpStorageService albumStorageService;
+    private final FtpClient albumStorageService;
     private final AlbumRepository albumRepository;
     private final DownloadCodeRepository downloadCodeRepository;
     private final DownloadCodeGenerator downloadCodeGenerator;
@@ -37,7 +37,7 @@ public class AlbumController {
     @Value("${spring.profiles.active}")
     private String activeProfile;
 
-    public AlbumController(SftpStorageService albumStorageService, DownloadCodeGenerator downloadCodeGenerator, AlbumRepository albumRepository, DownloadCodeRepository downloadCodeRepository) {
+    public AlbumController(FtpClient albumStorageService, DownloadCodeGenerator downloadCodeGenerator, AlbumRepository albumRepository, DownloadCodeRepository downloadCodeRepository) {
         this.albumStorageService = albumStorageService;
         this.downloadCodeGenerator = downloadCodeGenerator;
         this.albumRepository = albumRepository;
@@ -110,7 +110,7 @@ public class AlbumController {
                             .findById(foundDownloadCode.getAlbumId())
                             .orElseThrow(() -> new RuntimeException(String.format("Album %s not found for download code %s", foundDownloadCode.getAlbumId(), downloadCode)));
 
-                    ByteArrayResource downloadedAlbumFile = null;
+                    ByteArrayResource downloadedAlbumFile;
                     try {
                         downloadedAlbumFile = albumStorageService.downloadAlbum(matchingAlbum.getFileName());
                     } catch (IOException e) {
