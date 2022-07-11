@@ -18,12 +18,11 @@ public class DownloadCode {
     public static final int DEFAULT_AVAILABLE_DOWNLOADS = 3;
     private int availableDownloads = DEFAULT_AVAILABLE_DOWNLOADS;
 
-    // TODO: instead of UUIDs use 5 character unique random values
     @Id
     @GeneratedValue(generator="system-uuid")
     @GenericGenerator(name="system-uuid", strategy = "uuid")
     private String id;
-
+    private String code;
     private String albumId;
 
     public void decrementAvailableDownloads() {

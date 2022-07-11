@@ -102,7 +102,7 @@ public class AlbumController {
     @GetMapping("/{downloadCode}/redeem")
     public ResponseEntity<ByteArrayResource> redeemDownloadCode(@PathVariable String downloadCode) {
         log.info("Requested to redeem download code {}", downloadCode);
-        return downloadCodeRepository.findById(downloadCode)
+        return downloadCodeRepository.findByCode(downloadCode)
                 .map(foundDownloadCode -> {
                     Album matchingAlbum = albumRepository
                             .findById(foundDownloadCode.getAlbumId())

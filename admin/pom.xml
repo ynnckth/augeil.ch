@@ -43,11 +43,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.azure.spring</groupId>
-			<artifactId>azure-spring-boot-starter-storage</artifactId>
-			<version>4.0.0</version>
-		</dependency>
 		<!-- Production database -->
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
@@ -66,7 +61,7 @@
 			<artifactId>spring-integration-ftp</artifactId>
 			<version>5.5.13</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>

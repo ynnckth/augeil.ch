@@ -1,17 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { Album } from "../../model/Album";
 import { AgGridReact } from "ag-grid-react";
+import { ColDef } from "ag-grid-community/dist/lib/entities/colDef";
 
 interface Props {
   album: Album;
 }
 
-const AlbumDetailsGrid: React.FC<Props> = ({ album }) => {
-  const [columnDefs, setColumnDefs] = useState([
-    { field: "id", filter: true, resizable: true },
-    { field: "availableDownloads", filter: true, resizable: true },
-  ]);
+const columnDefinitions: ColDef[] = [
+  { field: "code", filter: true, resizable: true },
+  { field: "availableDownloads", filter: true, resizable: true },
+];
 
+const AlbumDetailsGrid: React.FC<Props> = ({ album }) => {
   return (
     <div
       className="ag-theme-alpine-dark"
@@ -19,7 +20,7 @@ const AlbumDetailsGrid: React.FC<Props> = ({ album }) => {
     >
       <AgGridReact
         rowData={album.downloadCodes}
-        columnDefs={columnDefs}
+        columnDefs={columnDefinitions}
         enableCellTextSelection={true}
       />
     </div>
